@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 2 - Consume API Courses</title>
+  <script>
+    
+    //Consultar cursos
+    const completed = (e) => {
+      const data = JSON.parse(e.target.responseText);
+      let html = "";
+
+      data.forEach(course => {
+        html += `<p>Curso: ${course.name} - Créditos: ${course.credits}</p>`;
+      });
+
+      document.getElementById('result').innerHTML = html;
+    };
+
+    const error = () => console.log("Error al consumir la API");
+
+    function getCourses() {
+      const ajaxRequest = new XMLHttpRequest();
+      ajaxRequest.addEventListener("load", completed);
+      ajaxRequest.addEventListener("error", error);
+      ajaxRequest.open("GET", "http://localhost:3001/course");
+      ajaxRequest.send();
+    }
+
+    //Agregar curso
+    function addCourse() {
+      const name = document.getElementById('courseName').value;
+      const credits = document.getElementById('credits').value;
+        const course = { name, credits };
+        const ajaxRequest = new XMLHttpRequest();
+        ajaxRequest.addEventListener("load", completed);
+        ajaxRequest.addEventListener("error", error);
+        ajaxRequest.open("POST", "http://localhost:3001/course");
+        ajaxRequest.setRequestHeader("Content-Type", "application/json");
+        ajaxRequest.send(JSON.stringify(course));
+
+        document.getElementById('courseName').value = '';
+        document.getElementById('credits').value = '';
+        alert("Curso agregado exitosamente");
+    }
+  </script>
+</head>
+
+<body>
+    <h2>Agregar Curso</h2>
+    <h3>Nombre del Curso</h3>
+    <input type="text" id="courseName">
+    <h3>Cantidad de Créditos</h3>
+    <input type="number" id="credits">
+    <button onclick="addCourse()">Agregar Curso</button>
+
+    <h2>Consultar cursos</h2>
+    <button onclick="getCourses();">Cursos</button>
+    <h3>Resultados:</h3>
+    <div id="result"></div>
+</body>
+
+</html>
