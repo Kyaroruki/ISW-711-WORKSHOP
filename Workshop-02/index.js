@@ -26,7 +26,6 @@ app.use(cors({
   methods: '*'
 }));
 
-
 //routes
 
 //Create a new course

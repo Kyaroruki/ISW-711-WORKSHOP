@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Week 2 - Consume API Courses</title>
+  <script>
+    const BASE_URL = "http://localhost:3001";
+
+    // CURSOS
+    const completedCourses = (e) => {
+      const data = JSON.parse(e.target.responseText);
+      let html = "";
+
+      data.forEach(course => { // Itera sobre cada curso y va contruyendo el html 
+        html += `<p>Curso: ${course.name} - Código: ${course.code} - Descripción: ${course.description} - Id del profesor : ${course.professor}</p>`;
+      });
+
+      document.getElementById('coursesResult').innerHTML = html;
+    };
+
+    //Obtener cursos
+    function getCourses() {
+      const ajaxRequest = new XMLHttpRequest();
+      ajaxRequest.addEventListener("load", completedCourses);
+      ajaxRequest.addEventListener("error", () => error("/course"));
+      ajaxRequest.open("GET", `${BASE_URL}/course`);
+      ajaxRequest.send();
+    }
+
+    //Agregar curso
+    function addCourse() {
+      const name = document.getElementById('courseName').value;
+      const code = document.getElementById('courseCode').value;
+      const description = document.getElementById('courseDescription').value;
+      const professor = document.getElementById('courseProfessor').value;
+
+      const course = { name, code: parseInt(code), description, professor }; //
+      const ajaxRequest = new XMLHttpRequest();
+      ajaxRequest.addEventListener("load", () => {
+        getCourses();
+        document.getElementById('courseName').value = '';
+        document.getElementById('courseCode').value = '';
+        document.getElementById('courseDescription').value = '';
+        document.getElementById('courseProfessor').value = '';
+      });
+      ajaxRequest.addEventListener("error", () => error("/course POST"));
+      ajaxRequest.open("POST", `${BASE_URL}/course`);
+      ajaxRequest.setRequestHeader("Content-Type", "application/json");
+      ajaxRequest.send(JSON.stringify(course));
+    }
+
+    // PROFESORES
+    const completedProfessors = (e) => {
+      const data = JSON.parse(e.target.responseText);
+      let html = "";
+
+      data.forEach(professor => {
+        html += `<p>Profesor: ${professor.name} ${professor.lastname} - ID: ${professor.id} - Edad: ${professor.age}</p>`;
+      });
+
+      document.getElementById('professorsResult').innerHTML = html;
+    };
+
+    function getProfessors() {
+      const ajaxRequest = new XMLHttpRequest();
+      ajaxRequest.addEventListener("load", completedProfessors);
+      ajaxRequest.addEventListener("error", () => error("/professor"));
+      ajaxRequest.open("GET", `${BASE_URL}/professor`);
+      ajaxRequest.send();
+    }
+
+    function addProfessor() {
+      const name = document.getElementById('professorName').value;
+      const lastname = document.getElementById('professorLastname').value;
+      const id = document.getElementById('professorId').value;
+      const age = document.getElementById('professorAge').value;
+
+      const professor = { name, lastname, id: parseInt(id), age: parseInt(age) };
+      const ajaxRequest = new XMLHttpRequest();
+      ajaxRequest.addEventListener("load", () => {
+        getProfessors();
+        loadProfessorsForCourse(); 
+        document.getElementById('professorName').value = '';
+        document.getElementById('professorLastname').value = '';
+        document.getElementById('professorId').value = '';
+        document.getElementById('professorAge').value = '';
+      });
+      ajaxRequest.addEventListener("error", () => error("/professor POST"));
+      ajaxRequest.open("POST", `${BASE_URL}/professor`);
+      ajaxRequest.setRequestHeader("Content-Type", "application/json");
+      ajaxRequest.send(JSON.stringify(professor));
+    }
+
+    // Cargar profesores para el selec 
+    function loadProfessorsForCourse() {
+      const ajaxRequest = new XMLHttpRequest();
+      ajaxRequest.addEventListener("load", (e) => {
+        const data = JSON.parse(e.target.responseText); //array de profesores
+        const select = document.getElementById('courseProfessor'); 
+        select.innerHTML = '<option value=""> Selecciona un profesor </option>'; 
+        data.forEach(professor => {
+          const option = document.createElement('option'); 
+          option.value = professor.id;  
+          option.text = `${professor.name} ${professor.lastname}`;
+          select.appendChild(option);
+        });
+      });
+      ajaxRequest.open("GET", `${BASE_URL}/professor`); //se obtienen los profesores para select
+      ajaxRequest.send();
+    }
+  </script>
+</head>
+
+<body onload="loadProfessorsForCourse()">
+    <h1>Gestión de Cursos y Profesores - UTN API</h1>
+    
+    <hr>
+    <h2>Agregar Profesor</h2>
+    <h3>Nombre</h3>
+    <input type="text" id="professorName" placeholder="Nombre del profesor">
+    <h3>Apellido</h3>
+    <input type="text" id="professorLastname" placeholder="Apellido del profesor">
+    <h3>ID</h3>
+    <input type="number" id="professorId" placeholder="ID del profesor">
+    <h3>Edad</h3>
+    <input type="number" id="professorAge" placeholder="Edad del profesor">
+    <button onclick="addProfessor()">Agregar Profesor</button>
+
+    <h2>Consultar Profesores</h2>
+    <button onclick="getProfessors();">Listar Profesores</button>
+    <h3>Resultados:</h3>
+    <div id="professorsResult"></div>
+
+    <hr>
+    <h2>Agregar Curso</h2>
+    <h3>Nombre</h3>
+    <input type="text" id="courseName" placeholder="Nombre del curso">
+    <h3>Código</h3>
+    <input type="number" id="courseCode" placeholder="Código del curso">
+    <h3>Descripción</h3>
+    <input type="text" id="courseDescription" placeholder="Descripción del curso">
+    <h3>ID del Profesor</h3>
+    <select id="courseProfessor" required>
+      <option value="">-- Selecciona un profesor --</option>
+    </select>
+    <button onclick="addCourse()">Agregar Curso</button>
+
+    <h2>Consultar Cursos</h2>
+    <button onclick="getCourses();">Listar Cursos</button>
+    <h3>Resultados:</h3>
+    <div id="coursesResult"></div>
+</body>
+
+</html>
