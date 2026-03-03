@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+
+<h1>Login</h1>
+
+<form id="loginForm">
+    <input id="email" type="email" placeholder="Email" required />
+    <input id="password" type="password" placeholder="Password" required />
+    <button type="submit">Login</button>
+</form>
+
+<script>
+const API_BASE = "http://localhost:3001";
+
+async function login(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+        const response = await fetch(`${API_BASE}/auth/token`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert(errorData.message || "Error de autenticación");
+            return;
+        }
+
+        const data = await response.json();
+
+        // Guardar token
+        sessionStorage.setItem("authToken", data.token);
+        window.location.href = "index.html";
+
+    } catch (error) {
+        alert("No se pudo conectar al servidor");
+    }
+}
+
+document.getElementById("loginForm")
+    .addEventListener("submit", login);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+
+<h1>Registro</h1>
+
+<form id="registerForm">
+    <input id="name" type="text" placeholder="Nombre" required />
+    <input id="lastname" type="text" placeholder="Apellido" required />
+    <input id="email" type="email" placeholder="Email" required />
+    <input id="password" type="password" placeholder="Password" required />
+    <button type="submit">Registrarse</button>
+</form>
+
+<script>
+const API_BASE = "http://localhost:3001";
+
+async function register(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const lastname = document.getElementById("lastname").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+        const response = await fetch(`${API_BASE}/auth/register`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ name, lastname, email, password })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert(errorData.message || "Error al registrar");
+            return;
+        }
+
+        alert("Usuario registrado");
+
+        document.getElementById("registerForm").reset();
+
+    } catch (error) {
+        alert("No se pudo conectar al servidor");
+    }
+}
+document.getElementById("registerForm")
+    .addEventListener("submit", register);
+</script>
+
+</body>
+</html>
